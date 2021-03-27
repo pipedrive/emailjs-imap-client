@@ -146,6 +146,35 @@ describe('browserbox integration tests', () => {
         return imap.close()
       })
     })
+    
+    it('should not throw unhandled rejection when connecting on a wrong server', function () {
+      return new Promise((resolve, reject) => {
+        process.on('unhandledRejection', reject)
+
+        imap = new ImapClient('bluehope.xyz', 465, {
+          logLevel,
+          auth: {
+            user: 'invalid',
+            pass: 'invalid'
+          },
+          useSecureTransport: true
+        })
+
+        imap.connect().then(() => {
+          expect(false)
+        }).catch((err) => {
+          expect(err).to.be.an('error')
+          expect(err.message).to.include('Unexpected char at position')
+        }).then(() => {
+          // must wait after current loop otherwise unhandledRejection is called after the end of the test.
+          return new Promise((resolve) => setImmediate(resolve))
+        }).then(() => {
+          process.off('unhandledRejection', reject)
+        }).then(() => {
+          resolve()
+        })
+      })
+    })
 
     it('should fail authentication', (done) => {
       imap = new ImapClient('127.0.0.1', port + 2, {
