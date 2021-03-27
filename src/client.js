@@ -160,7 +160,7 @@ export default class Client {
           clearTimeout(connectionTimeout)
           this._changeState(STATE_NOT_AUTHENTICATED)
           this.updateCapability()
-            .then(() => resolve(this._capability))
+            .then(() => resolve(this._capability), reject)
         }
 
         this.client.onerror = (err) => {
