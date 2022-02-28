@@ -3,28 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-Object.defineProperty(exports, "LOG_LEVEL_NONE", {
+Object.defineProperty(exports, "LOG_LEVEL_ALL", {
   enumerable: true,
   get: function () {
-    return _common.LOG_LEVEL_NONE;
-  }
-});
-Object.defineProperty(exports, "LOG_LEVEL_ERROR", {
-  enumerable: true,
-  get: function () {
-    return _common.LOG_LEVEL_ERROR;
-  }
-});
-Object.defineProperty(exports, "LOG_LEVEL_WARN", {
-  enumerable: true,
-  get: function () {
-    return _common.LOG_LEVEL_WARN;
-  }
-});
-Object.defineProperty(exports, "LOG_LEVEL_INFO", {
-  enumerable: true,
-  get: function () {
-    return _common.LOG_LEVEL_INFO;
+    return _common.LOG_LEVEL_ALL;
   }
 });
 Object.defineProperty(exports, "LOG_LEVEL_DEBUG", {
@@ -33,10 +15,28 @@ Object.defineProperty(exports, "LOG_LEVEL_DEBUG", {
     return _common.LOG_LEVEL_DEBUG;
   }
 });
-Object.defineProperty(exports, "LOG_LEVEL_ALL", {
+Object.defineProperty(exports, "LOG_LEVEL_ERROR", {
   enumerable: true,
   get: function () {
-    return _common.LOG_LEVEL_ALL;
+    return _common.LOG_LEVEL_ERROR;
+  }
+});
+Object.defineProperty(exports, "LOG_LEVEL_INFO", {
+  enumerable: true,
+  get: function () {
+    return _common.LOG_LEVEL_INFO;
+  }
+});
+Object.defineProperty(exports, "LOG_LEVEL_NONE", {
+  enumerable: true,
+  get: function () {
+    return _common.LOG_LEVEL_NONE;
+  }
+});
+Object.defineProperty(exports, "LOG_LEVEL_WARN", {
+  enumerable: true,
+  get: function () {
+    return _common.LOG_LEVEL_WARN;
   }
 });
 exports.default = void 0;

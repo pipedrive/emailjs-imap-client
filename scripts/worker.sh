@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 rm -f $PWD/res/compression.worker.blob
 webpack -p

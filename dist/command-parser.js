@@ -3,16 +3,16 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.parseAPPEND = parseAPPEND;
+exports.parseBODYSTRUCTURE = parseBODYSTRUCTURE;
+exports.parseCOPY = parseCOPY;
+exports.parseENVELOPE = parseENVELOPE;
+exports.parseFETCH = parseFETCH;
 exports.parseNAMESPACE = parseNAMESPACE;
 exports.parseNAMESPACEElement = parseNAMESPACEElement;
-exports.parseSELECT = parseSELECT;
-exports.parseENVELOPE = parseENVELOPE;
-exports.parseBODYSTRUCTURE = parseBODYSTRUCTURE;
-exports.parseFETCH = parseFETCH;
-exports.parseSTATUS = parseSTATUS;
 exports.parseSEARCH = parseSEARCH;
-exports.parseCOPY = parseCOPY;
-exports.parseAPPEND = parseAPPEND;
+exports.parseSELECT = parseSELECT;
+exports.parseSTATUS = parseSTATUS;
 
 var _emailjsAddressparser = _interopRequireDefault(require("emailjs-addressparser"));
 
