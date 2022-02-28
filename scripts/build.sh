@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 npm run build-worker
 rm -rf $PWD/dist
