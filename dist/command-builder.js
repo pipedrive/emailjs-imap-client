@@ -4,9 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.buildFETCHCommand = buildFETCHCommand;
-exports.buildXOAuth2Token = buildXOAuth2Token;
 exports.buildSEARCHCommand = buildSEARCHCommand;
 exports.buildSTORECommand = buildSTORECommand;
+exports.buildXOAuth2Token = buildXOAuth2Token;
 
 var _emailjsImapHandler = require("emailjs-imap-handler");
 

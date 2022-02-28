@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.fromTypedArray = exports.toTypedArray = exports.LOG_LEVEL_ALL = exports.LOG_LEVEL_DEBUG = exports.LOG_LEVEL_INFO = exports.LOG_LEVEL_WARN = exports.LOG_LEVEL_ERROR = exports.LOG_LEVEL_NONE = void 0;
+exports.toTypedArray = exports.fromTypedArray = exports.LOG_LEVEL_WARN = exports.LOG_LEVEL_NONE = exports.LOG_LEVEL_INFO = exports.LOG_LEVEL_ERROR = exports.LOG_LEVEL_DEBUG = exports.LOG_LEVEL_ALL = void 0;
 const LOG_LEVEL_NONE = 1000;
 exports.LOG_LEVEL_NONE = LOG_LEVEL_NONE;
 const LOG_LEVEL_ERROR = 40;
