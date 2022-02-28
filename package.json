@@ -13,8 +13,8 @@
     "lint": "$(npm bin)/standard",
     "preversion": "npm run build",
     "test": "npm run lint && npm run unit && npm run integration",
-    "unit": "$(npm bin)/mocha './src/*-unit.js' --reporter spec --require @babel/register testutils.js",
-    "integration": "$(npm bin)/mocha './src/*-integration.js' --reporter spec --require @babel/register testutils.js",
+    "unit": "$(npm bin)/mocha --exit './src/*-unit.js' --reporter spec --require @babel/register testutils.js",
+    "integration": "$(npm bin)/mocha --exit './src/*-integration.js' --reporter spec --require @babel/register testutils.js",
     "build-worker": "./scripts/worker.sh"
   },
   "repository": {
