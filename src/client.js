@@ -1,5 +1,5 @@
 import { map, pipe, union, zip, fromPairs, propOr, pathOr, flatten } from 'ramda'
-import { imapEncode, imapDecode } from 'emailjs-utf7'
+import { imapDecode } from 'emailjs-utf7'
 import {
   parseAPPEND,
   parseCOPY,
@@ -72,6 +72,8 @@ export default class Client {
     this._state = false // Current state
     this._authenticated = false // Is the connection authenticated
     this._capability = [] // List of extensions the server supports
+    this._humanReadable = ''
+    this._okGreeting = ''
     this._selectedMailbox = false // Selected mailbox
     this._enteredIdle = false
     this._idleTimeout = false
@@ -159,6 +161,10 @@ export default class Client {
         this.client.onready = () => {
           clearTimeout(connectionTimeout)
           this._changeState(STATE_NOT_AUTHENTICATED)
+          /* The human-readable string on connection startup is the OK-greeting
+             See https://tools.ietf.org/html/rfc3501#section-7.1.1
+             and diagram in https://tools.ietf.org/html/rfc3501#section-3.4 */
+          this._okGreeting = this._humanReadable
           this.updateCapability()
             .then(() => resolve(this._capability))
         }
@@ -283,6 +289,38 @@ export default class Client {
   }
 
   /**
+   * Subscribe to a mailbox with the given path
+   *
+   * SUBSCRIBE details:
+   *   https://tools.ietf.org/html/rfc3501#section-6.3.6
+   *
+   * @param {String} path
+   *     The path of the mailbox you would like to subscribe to.
+   * @returns {Promise}
+   *     Promise resolves if mailbox is now subscribed to or was so already.
+   */
+  async subscribeMailbox (path) {
+    this.logger.debug('Subscribing to mailbox', path, '...')
+    return this.exec({ command: 'SUBSCRIBE', attributes: [path] })
+  }
+
+  /**
+   * Unsubscribe from a mailbox with the given path
+   *
+   * UNSUBSCRIBE details:
+   *   https://tools.ietf.org/html/rfc3501#section-6.3.7
+   *
+   * @param {String} path
+   *     The path of the mailbox you would like to unsubscribe from.
+   * @returns {Promise}
+   *     Promise resolves if mailbox is no longer subscribed to or was not before.
+   */
+  async unsubscribeMailbox (path) {
+    this.logger.debug('Unsubscribing to mailbox', path, '...')
+    return this.exec({ command: 'UNSUBSCRIBE', attributes: [path] })
+  }
+
+  /**
    * Runs NAMESPACE command
    *
    * NAMESPACE details:
@@ -386,8 +424,7 @@ export default class Client {
    *   http://tools.ietf.org/html/rfc3501#section-6.3.3
    *
    * @param {String} path
-   *     The path of the mailbox you would like to create.  This method will
-   *     handle utf7 encoding for you.
+   *     The path of the mailbox you would like to create.
    * @returns {Promise}
    *     Promise resolves if mailbox was created.
    *     In the event the server says NO [ALREADYEXISTS], we treat that as success.
@@ -395,7 +432,7 @@ export default class Client {
   async createMailbox (path) {
     this.logger.debug('Creating mailbox', path, '...')
     try {
-      await this.exec({ command: 'CREATE', attributes: [imapEncode(path)] })
+      await this.exec({ command: 'CREATE', attributes: [path] })
     } catch (err) {
       if (err && err.code === 'ALREADYEXISTS') {
         return
@@ -411,14 +448,13 @@ export default class Client {
    *   https://tools.ietf.org/html/rfc3501#section-6.3.4
    *
    * @param {String} path
-   *     The path of the mailbox you would like to delete.  This method will
-   *     handle utf7 encoding for you.
+   *     The path of the mailbox you would like to delete.
    * @returns {Promise}
    *     Promise resolves if mailbox was deleted.
    */
   deleteMailbox (path) {
     this.logger.debug('Deleting mailbox', path, '...')
-    return this.exec({ command: 'DELETE', attributes: [imapEncode(path)] })
+    return this.exec({ command: 'DELETE', attributes: [path] })
   }
 
   /**
@@ -846,17 +882,26 @@ export default class Client {
     return this._capability.indexOf(capa.toUpperCase().trim()) >= 0
   }
 
+  getOkGreeting () {
+    return this._okGreeting
+  }
+
   // Default handlers for untagged responses
 
   /**
    * Checks if an untagged OK includes [CAPABILITY] tag and updates capability object
+   * Also stores the human readable string from the untagged response
+   * See https://tools.ietf.org/html/rfc3501#section-7.1.1
    *
    * @param {Object} response Parsed server response
    * @param {Function} next Until called, server responses are not processed
    */
   _untaggedOkHandler (response) {
-    if (response && response.capability) {
-      this._capability = response.capability
+    if (response) {
+      if (response.capability) {
+        this._capability = response.capability
+      }
+      this._humanReadable = response.humanReadable
     }
   }
 

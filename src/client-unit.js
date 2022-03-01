@@ -582,18 +582,6 @@ describe('browserbox unit tests', () => {
       })
     })
 
-    it('should call mutf7 encode the argument', () => {
-      // From RFC 3501
-      br.exec.withArgs({
-        command: 'CREATE',
-        attributes: ['~peter/mail/&U,BTFw-/&ZeVnLIqe-']
-      }).returns(Promise.resolve())
-
-      return br.createMailbox('~peter/mail/\u53f0\u5317/\u65e5\u672c\u8a9e').then(() => {
-        expect(br.exec.callCount).to.equal(1)
-      })
-    })
-
     it('should treat an ALREADYEXISTS response as success', () => {
       var fakeErr = {
         code: 'ALREADYEXISTS'
@@ -621,18 +609,6 @@ describe('browserbox unit tests', () => {
       }).returns(Promise.resolve())
 
       return br.deleteMailbox('mailboxname').then(() => {
-        expect(br.exec.callCount).to.equal(1)
-      })
-    })
-
-    it('should call mutf7 encode the argument', () => {
-      // From RFC 3501
-      br.exec.withArgs({
-        command: 'DELETE',
-        attributes: ['~peter/mail/&U,BTFw-/&ZeVnLIqe-']
-      }).returns(Promise.resolve())
-
-      return br.deleteMailbox('~peter/mail/\u53f0\u5317/\u65e5\u672c\u8a9e').then(() => {
         expect(br.exec.callCount).to.equal(1)
       })
     })
@@ -1121,6 +1097,34 @@ describe('browserbox unit tests', () => {
     })
   })
 
+  describe('#subscribe and unsubscribe', () => {
+    beforeEach(() => {
+      sinon.stub(br, 'exec')
+    })
+
+    it('should call SUBSCRIBE with a string payload', () => {
+      br.exec.withArgs({
+        command: 'SUBSCRIBE',
+        attributes: ['mailboxname']
+      }).returns(Promise.resolve())
+
+      return br.subscribeMailbox('mailboxname').then(() => {
+        expect(br.exec.callCount).to.equal(1)
+      })
+    })
+
+    it('should call UNSUBSCRIBE with a string payload', () => {
+      br.exec.withArgs({
+        command: 'UNSUBSCRIBE',
+        attributes: ['mailboxname']
+      }).returns(Promise.resolve())
+
+      return br.unsubscribeMailbox('mailboxname').then(() => {
+        expect(br.exec.callCount).to.equal(1)
+      })
+    })
+  })
+
   describe('#hasCapability', () => {
     it('should detect existing capability', () => {
       br._capability = ['ZZZ']
@@ -1134,12 +1138,26 @@ describe('browserbox unit tests', () => {
     })
   })
 
+  describe('#getOkGreeting', () => {
+    it('should get greeting', () => {
+      br._okGreeting = 'hi hi'
+      expect(br.getOkGreeting()).to.equal('hi hi')
+    })
+  })
+
   describe('#_untaggedOkHandler', () => {
     it('should update capability if present', () => {
       br._untaggedOkHandler({
         capability: ['abc']
       }, () => { })
       expect(br._capability).to.deep.equal(['abc'])
+    })
+
+    it('should update human-readable', () => {
+      br._untaggedOkHandler({
+        humanReadable: 'Server is ready'
+      }, () => { })
+      expect(br._humanReadable).to.equal('Server is ready')
     })
   })
 
