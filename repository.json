@@ -1,0 +1,9 @@
+{
+  "name": "emailjs-imap-client",
+  "description": "Library for Pmailer IMAP connections handling",
+  "owner": "Tuvi",
+  "type": "library",
+  "status": "released",
+  "tags": [],
+  "launchpad": "Tuvi"
+}
