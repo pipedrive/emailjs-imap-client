@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-  entry: './src/compression-worker.js',
+  entry: './src/compression.worker.js',
   output: {
     path: path.resolve(__dirname, 'res'),
     filename: 'compression.worker.js'

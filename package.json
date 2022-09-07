@@ -13,8 +13,8 @@
     "lint": "$(npm bin)/standard",
     "preversion": "npm run build",
     "test": "npm run lint && npm run unit && npm run integration",
-    "unit": "$(npm bin)/mocha --exit './src/*-unit.js' --reporter spec --require @babel/register testutils.js",
-    "integration": "$(npm bin)/mocha --exit './src/*-integration.js' --reporter spec --require @babel/register testutils.js",
+    "unit": "$(npm bin)/mocha --exit './src/*.unit.js' --reporter spec --require @babel/register testutils.js",
+    "integration": "$(npm bin)/mocha --exit './src/*.integration.js' --reporter spec --require @babel/register testutils.js",
     "build-worker": "./scripts/worker.sh"
   },
   "repository": {
@@ -27,7 +27,7 @@
     "emailjs-base64": "^1.1.4",
     "emailjs-imap-handler": "^3.0.2",
     "emailjs-mime-codec": "^2.0.8",
-    "emailjs-tcp-socket": "https://github.com/pipedrive/emailjs-tcp-socket/tarball/master",
+    "emailjs-tcp-socket": "https://github.com/pipedrive/emailjs-tcp-socket/tarball/v3.0.0",
     "emailjs-utf7": "^4.0.1",
     "pako": "^1.0.10",
     "ramda": "^0.26.1"
