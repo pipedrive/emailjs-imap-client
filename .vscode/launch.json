@@ -9,7 +9,7 @@
       "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
       "stopOnEntry": false,
       "args": [
-        "./src/*-unit.js",
+        "./src/*.unit.js",
         "--require", "@babel/register",
         "testutils.js",
         "--reporter", "spec",
