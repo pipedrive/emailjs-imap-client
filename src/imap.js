@@ -567,7 +567,7 @@ export default class Imap {
         response = parser(command, { valueAsString })
         this.logger.debug('S:', () => compiler(response, false, true))
       } catch (e) {
-        this.logger.error('Error parsing imap command!', JSON.stringify({ response, command }))
+        this.logger.error(e, 'Error parsing imap command!', { response, command: [...command] })
         return this._onError(e)
       }
 
@@ -668,7 +668,7 @@ export default class Imap {
       this._currentCommand.data = compiler(this._currentCommand.request, true)
       this.logger.debug('C:', () => compiler(this._currentCommand.request, false, true)) // excludes passwords etc.
     } catch (e) {
-      this.logger.error('Error compiling imap command!', this._currentCommand.request)
+      this.logger.error(e, 'Error compiling imap command!', this._currentCommand.request)
       return this._onError(new Error('Error compiling imap command!'))
     }
 
