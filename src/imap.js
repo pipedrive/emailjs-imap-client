@@ -47,6 +47,19 @@ const TIMEOUT_SOCKET_LOWER_BOUND = 60000
  */
 const TIMEOUT_SOCKET_MULTIPLIER = 0.1
 
+const retryableParser = (command, opts) => {
+  try {
+    return parser(command, opts)
+  } catch (e) {
+    if (e && e.message === `Unexpected char at position ${command.length - 1}` && typeof command.slice === 'function') {
+      // drop last character and try to parse again
+      return parser(command.slice(0, -1), opts)
+    }
+
+    throw e
+  }
+}
+
 /**
  * Creates a connection object to an IMAP server. Call `connect` method to inititate
  * the actual connection, the constructor only defines the properties but does not actually connect.
@@ -564,10 +577,10 @@ export default class Imap {
       var response
       try {
         const valueAsString = this._currentCommand.request && this._currentCommand.request.valueAsString
-        response = parser(command, { valueAsString })
+        response = retryableParser(command, { valueAsString })
         this.logger.debug('S:', () => compiler(response, false, true))
       } catch (e) {
-        this.logger.error(e, 'Error parsing imap command!', { response, command: [...command] })
+        this.logger.error(e, 'Error parsing imap command!', { response, command: fromTypedArray(command) })
         return this._onError(e)
       }
 

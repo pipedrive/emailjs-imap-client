@@ -302,6 +302,40 @@ describe('browserbox imap unit tests', () => {
       }).calledOnce).to.be.true
     })
 
+    it('W1 NO unavailable with timestamp should be retried', () => {
+      client.onready = sinon.stub()
+      sinon.stub(client, '_handleResponse')
+
+      function * gen () { yield toTypedArray('W1 NO [UNAVAILABLE] Temporary authentication failure. [2023-01-11 10:27:22]') }
+
+      client._parseIncomingCommands(gen())
+
+      expect(client.onready.callCount).to.equal(1)
+
+      expect(client._handleResponse.withArgs({
+        tag: 'W1',
+        command: 'NO',
+        attributes: [
+          {
+            type: 'ATOM',
+            value: '',
+            section: [
+              {
+                type: 'ATOM',
+                value: 'UNAVAILABLE'
+              }
+            ]
+          },
+          {
+            type: 'TEXT',
+            value: 'Temporary authentication failure. [2023-01-11 10:27:22'
+          }
+        ],
+        humanReadable: 'Temporary authentication failure. [2023-01-11 10:27:22',
+        code: 'UNAVAILABLE'
+      }).calledOnce).to.be.true
+    })
+
     it('should process an untagged item from the queue', () => {
       sinon.stub(client, '_handleResponse')
 
