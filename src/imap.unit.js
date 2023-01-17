@@ -336,6 +336,93 @@ describe('browserbox imap unit tests', () => {
       }).calledOnce).to.be.true
     })
 
+    it('failing parsing due to double quotes should be retried', () => {
+      client.onready = sinon.stub()
+      sinon.stub(client, '_handleResponse')
+
+      function * gen () { yield toTypedArray('* 20 FETCH (INTERNALDATE " 4-Jan-2021 17:05:45 +0000" ENVELOPE ("Mon, 04 Jan 2021 18:05:36 +0100" "message subject" ((NIL NIL ""testing" "testing.com"")) "<teting@teting.com>") FLAGS (\\Seen) RFC822.SIZE 73156 UID 20)') }
+
+      client._parseIncomingCommands(gen())
+
+      expect(client.onready.callCount).to.equal(1)
+
+      expect(client._handleResponse.withArgs({
+        tag: '*',
+        command: 'FETCH',
+        attributes: [
+          [
+            {
+              type: 'ATOM',
+              value: 'INTERNALDATE'
+            },
+            {
+              type: 'STRING',
+              value: ' 4-Jan-2021 17:05:45 +0000'
+            },
+            {
+              type: 'ATOM',
+              value: 'ENVELOPE'
+            },
+            [
+              {
+                type: 'STRING',
+                value: 'Mon, 04 Jan 2021 18:05:36 +0100'
+              },
+              {
+                type: 'STRING',
+                value: 'message subject'
+              },
+              [
+                [
+                  null,
+                  null,
+                  {
+                    type: 'STRING',
+                    value: 'testing'
+                  },
+                  {
+                    type: 'STRING',
+                    value: 'testing.com'
+                  }
+                ]
+              ],
+              {
+                type: 'STRING',
+                value: '<teting@teting.com>'
+              }
+            ],
+            {
+              type: 'ATOM',
+              value: 'FLAGS'
+            },
+            [
+              {
+                type: 'ATOM',
+                value: '\\Seen'
+              }
+            ],
+            {
+              type: 'ATOM',
+              value: 'RFC822.SIZE'
+            },
+            {
+              type: 'ATOM',
+              value: '73156'
+            },
+            {
+              type: 'ATOM',
+              value: 'UID'
+            },
+            {
+              type: 'ATOM',
+              value: '20'
+            }
+          ]
+        ],
+        nr: 20
+      }).calledOnce).to.be.true
+    })
+
     it('should process an untagged item from the queue', () => {
       sinon.stub(client, '_handleResponse')
 

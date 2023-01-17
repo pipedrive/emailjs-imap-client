@@ -1,7 +1,8 @@
 import { propOr } from 'ramda'
 import TCPSocket from 'emailjs-tcp-socket'
 import { toTypedArray, fromTypedArray } from './common'
-import { parser, compiler } from 'emailjs-imap-handler'
+import { compiler } from 'emailjs-imap-handler'
+import { parserHelper } from './parser-helper'
 import Compression from './compression'
 import CompressionBlob from '../res/compression.worker.blob'
 
@@ -46,19 +47,6 @@ const TIMEOUT_SOCKET_LOWER_BOUND = 60000
  * upload would be 110 seconds to wait for the timeout. 10 KB/s === 0.1 s/B
  */
 const TIMEOUT_SOCKET_MULTIPLIER = 0.1
-
-const retryableParser = (command, opts) => {
-  try {
-    return parser(command, opts)
-  } catch (e) {
-    if (e && e.message === `Unexpected char at position ${command.length - 1}` && typeof command.slice === 'function') {
-      // drop last character and try to parse again
-      return parser(command.slice(0, -1), opts)
-    }
-
-    throw e
-  }
-}
 
 /**
  * Creates a connection object to an IMAP server. Call `connect` method to inititate
@@ -577,7 +565,7 @@ export default class Imap {
       var response
       try {
         const valueAsString = this._currentCommand.request && this._currentCommand.request.valueAsString
-        response = retryableParser(command, { valueAsString })
+        response = parserHelper(command, { valueAsString })
         this.logger.debug('S:', () => compiler(response, false, true))
       } catch (e) {
         this.logger.error(e, 'Error parsing imap command!', { response, command: fromTypedArray(command) })
