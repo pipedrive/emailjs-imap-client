@@ -423,6 +423,168 @@ describe('browserbox imap unit tests', () => {
       }).calledOnce).to.be.true
     })
 
+    it('failed parsing due to encoded-words with double quotes should be retried', () => {
+      client.onready = sinon.stub()
+      sinon.stub(client, '_handleResponse')
+
+      function * gen () { yield toTypedArray('* 36 FETCH (INTERNALDATE "13-Jan-2021 19:24:45 +0000" ENVELOPE ("Wed, 13 Jan 2021 20:24:41 +0100" "Testing email" (("=?utf-8?Q?"|_m=C3=BCller | testing.at"?=" NIL "co" "testing.at")) (("=?utf-8?Q?"|_fm=C3=BCller_|_testing.at"?=" NIL "co" "testing.at")) (("=?utf-8?Q?"|_fbm=C3=BCller_|_testing.at"?=" NIL "co" "testing.at")) ((NIL NIL "testing" "mailing.at")) ((NIL NIL NIL NIL)) ((NIL NIL NIL NIL)) ((NIL NIL NIL NIL)) "<uuid@testing.at>") FLAGS (\\Seen) RFC822.SIZE 31689 UID 36)') }
+
+      client._parseIncomingCommands(gen())
+
+      expect(client.onready.callCount).to.equal(1)
+
+      expect(client._handleResponse.withArgs({
+        tag: '*',
+        command: 'FETCH',
+        attributes: [
+          [
+            {
+              type: 'ATOM',
+              value: 'INTERNALDATE'
+            },
+            {
+              type: 'STRING',
+              value: '13-Jan-2021 19:24:45 +0000'
+            },
+            {
+              type: 'ATOM',
+              value: 'ENVELOPE'
+            },
+            [
+              {
+                type: 'STRING',
+                value: 'Wed, 13 Jan 2021 20:24:41 +0100'
+              },
+              {
+                type: 'STRING',
+                value: 'Testing email'
+              },
+              [
+                [
+                  {
+                    type: 'STRING',
+                    value: '=?utf-8?Q?|_m=C3=BCller | testing.at?='
+                  },
+                  null,
+                  {
+                    type: 'STRING',
+                    value: 'co'
+                  },
+                  {
+                    type: 'STRING',
+                    value: 'testing.at'
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    type: 'STRING',
+                    value: '=?utf-8?Q?|_fm=C3=BCller_|_testing.at?='
+                  },
+                  null,
+                  {
+                    type: 'STRING',
+                    value: 'co'
+                  },
+                  {
+                    type: 'STRING',
+                    value: 'testing.at'
+                  }
+                ]
+              ],
+              [
+                [
+                  {
+                    type: 'STRING',
+                    value: '=?utf-8?Q?|_fbm=C3=BCller_|_testing.at?='
+                  },
+                  null,
+                  {
+                    type: 'STRING',
+                    value: 'co'
+                  },
+                  {
+                    type: 'STRING',
+                    value: 'testing.at'
+                  }
+                ]
+              ],
+              [
+                [
+                  null,
+                  null,
+                  {
+                    type: 'STRING',
+                    value: 'testing'
+                  },
+                  {
+                    type: 'STRING',
+                    value: 'mailing.at'
+                  }
+                ]
+              ],
+              [
+                [
+                  null,
+                  null,
+                  null,
+                  null
+                ]
+              ],
+              [
+                [
+                  null,
+                  null,
+                  null,
+                  null
+                ]
+              ],
+              [
+                [
+                  null,
+                  null,
+                  null,
+                  null
+                ]
+              ],
+              {
+                type: 'STRING',
+                value: '<uuid@testing.at>'
+              }
+            ],
+            {
+              type: 'ATOM',
+              value: 'FLAGS'
+            },
+            [
+              {
+                type: 'ATOM',
+                value: '\\Seen'
+              }
+            ],
+            {
+              type: 'ATOM',
+              value: 'RFC822.SIZE'
+            },
+            {
+              type: 'ATOM',
+              value: '31689'
+            },
+            {
+              type: 'ATOM',
+              value: 'UID'
+            },
+            {
+              type: 'ATOM',
+              value: '36'
+            }
+          ]
+        ],
+        nr: 36
+      }).calledOnce).to.be.true
+    })
+
     it('should process an untagged item from the queue', () => {
       sinon.stub(client, '_handleResponse')
 
