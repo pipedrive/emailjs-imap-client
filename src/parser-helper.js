@@ -6,6 +6,8 @@ const isUnexpectedCharError = e => e && e.message && e.message.toLowerCase()
 
 // according to the https://www.rfc-editor.org/rfc/rfc2047
 const encodedWordsRegex = /=\?[^?]+\?[^?]+\?(.+?)\?=/ig
+const serverBugRegex = /(.+NO\s+\[SERVERBUG])(.+)/i
+const commandNotAllowedStringCharacter = /[^a-zA-Z-.0-9_: ]/ig
 
 const sanitizeEncodedWords = command => {
   const allMatches = command.matchAll(encodedWordsRegex)
@@ -29,6 +31,19 @@ const sanitizeEncodedWords = command => {
   return changedCommand
 }
 
+const sanitizeServerBug = command => {
+  const foundMatch = serverBugRegex.exec(command)
+
+  if (foundMatch.length !== 3) {
+    return command
+  }
+
+  return [
+    foundMatch[1],
+    foundMatch[2].replaceAll(commandNotAllowedStringCharacter, '').trim()
+  ].join(' ')
+}
+
 const parsingHacks = [
   {
     // parsing hack in situation when last character breaks parsing
@@ -44,6 +59,11 @@ const parsingHacks = [
     // parsing hack which is caused by provider returning command with encoded-words with quotes in ATOM instructions
     func: (command, opts) => parser(toTypedArray(sanitizeEncodedWords(fromTypedArray(command))), opts),
     condition: (command, e) => isUnexpectedCharError(e) && fromTypedArray(command).search(encodedWordsRegex) !== -1
+  },
+  {
+    // parsing hack which is caused by provider returning NO [SERVERBUG] unparseable message
+    func: (command, opts) => parser(toTypedArray(sanitizeServerBug(fromTypedArray(command))), opts),
+    condition: (command, e) => isUnexpectedCharError(e) && fromTypedArray(command).search(serverBugRegex) !== -1
   }
 ]
 
