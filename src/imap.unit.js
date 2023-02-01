@@ -585,6 +585,40 @@ describe('browserbox imap unit tests', () => {
       }).calledOnce).to.be.true
     })
 
+    it('failed parsing due to invalid formed serverbug should be retried', () => {
+      client.onready = sinon.stub()
+      sinon.stub(client, '_handleResponse')
+
+      function * gen () { yield toTypedArray('W9 NO [SERVERBUG] Internal error occurred. Refer to server log for more information. [2023-01-31 15:07:10] (0.000 + 0.000 secs).') }
+
+      client._parseIncomingCommands(gen())
+
+      expect(client.onready.callCount).to.equal(1)
+
+      expect(client._handleResponse.withArgs({
+        tag: 'W9',
+        command: 'NO',
+        attributes: [
+          {
+            type: 'ATOM',
+            value: '',
+            section: [
+              {
+                type: 'ATOM',
+                value: 'SERVERBUG'
+              }
+            ]
+          },
+          {
+            type: 'TEXT',
+            value: 'Internal error occurred. Refer to server log for more information. 2023-01-31 15:07:10 0.000  0.000 secs.'
+          }
+        ],
+        humanReadable: 'Internal error occurred. Refer to server log for more information. 2023-01-31 15:07:10 0.000  0.000 secs.',
+        code: 'SERVERBUG'
+      }).calledOnce).to.be.true
+    })
+
     it('should process an untagged item from the queue', () => {
       sinon.stub(client, '_handleResponse')
 
