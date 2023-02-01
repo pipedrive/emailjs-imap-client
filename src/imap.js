@@ -275,6 +275,7 @@ export default class Imap {
             var error = new Error(response.humanReadable || 'Error')
             // add command and attributes for more clue what failed
             error.command = request.command
+            error.responseCommand = response.command
             if (request.command !== 'login') {
               error.attributes = request.attributes
             }
