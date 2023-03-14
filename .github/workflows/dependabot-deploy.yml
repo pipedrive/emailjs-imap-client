@@ -1,0 +1,21 @@
+on:
+  check_suite:
+    type: [completed]
+
+jobs:
+  dependabot-auto-deploy:
+    runs-on: eks-runner
+    timeout-minutes: 1
+    name: Dependabot auto deploy dependencies
+    if: startsWith(github.event.check_suite.head_branch, 'dependabot')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Deploy
+        uses: pipedrive/gha-setup/actions/deploy-dependabot@master
+        with:
+          timezone: Europe/Tallinn
+          target: patch
+          updateIndirectDependencies: true
+          deployOnlyInWorkingHours: true
+          github-token: ${{ secrets.GHA_ACCESS_TOKEN }}
