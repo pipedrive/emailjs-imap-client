@@ -30,6 +30,8 @@ import {
   checkSpecialUse
 } from './special-use'
 
+import { imapCommandChannel } from './diagnostics-channel';
+
 export const TIMEOUT_CONNECTION = 90 * 1000 // Milliseconds to wait for the IMAP greeting from the server
 export const TIMEOUT_NOOP = 60 * 1000 // Milliseconds between NOOP commands while idling
 export const TIMEOUT_IDLE = 60 * 1000 // Milliseconds until IDLE command is cancelled
@@ -997,5 +999,13 @@ export default class Client {
       warn: (...msgs) => { if (LOG_LEVEL_WARN >= this.logLevel) { logger.warn(msgs) } },
       error: (...msgs) => { if (LOG_LEVEL_ERROR >= this.logLevel) { logger.error(msgs) } }
     }
+  }
+
+  subscribeToDiagnostics(cb) {
+    imapCommandChannel.subscribe(cb);
+  }
+
+  unsubscribeFromDiagnostics(cb) {
+    imapCommandChannel.unsubscribe(cb);
   }
 }

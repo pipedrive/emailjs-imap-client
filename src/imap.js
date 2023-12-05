@@ -5,6 +5,7 @@ import { compiler } from 'emailjs-imap-handler'
 import { parserHelper } from './parser-helper'
 import Compression from './compression'
 import CompressionBlob from '../res/compression.worker.blob'
+import { imapCommandChannel } from './diagnostics-channel';
 
 //
 // constants used for communication with the worker
@@ -128,6 +129,11 @@ export default class Imap {
         ca: this.options.ca
       })
 
+      imapCommandChannel.publish({
+        type: 'connect',
+        host: this.host,
+      });
+
       // allows certificate handling for platform w/o native tls support
       // oncert is non standard so setting it might throw if the socket object is immutable
       try {
@@ -192,6 +198,11 @@ export default class Imap {
 
           this.socket = null
         }
+
+        imapCommandChannel.publish({
+          type: 'close',
+          host: this.host,
+        });
 
         resolve()
       }
@@ -347,6 +358,12 @@ export default class Imap {
    * @param {String} str Payload
    */
   send (str) {
+    imapCommandChannel.publish({
+      type: 'send',
+      host: this.host,
+      payload: str,
+    });
+
     const buffer = toTypedArray(str).buffer
     const timeout = this.timeoutSocketLowerBound + Math.floor(buffer.byteLength * this.timeoutSocketMultiplier)
 
