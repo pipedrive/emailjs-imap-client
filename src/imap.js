@@ -130,7 +130,7 @@ export default class Imap {
       })
 
       imapCommandChannel.publish({
-        type: 'connect',
+        type: 'CONNECT',
         host: this.host,
       });
 
@@ -200,7 +200,7 @@ export default class Imap {
         }
 
         imapCommandChannel.publish({
-          type: 'close',
+          type: 'CLOSE',
           host: this.host,
         });
 
@@ -358,8 +358,22 @@ export default class Imap {
    * @param {String} str Payload
    */
   send (str) {
+    let command = str
+
+    // Parse command type from payload, so we would publish only command type to diagnostics
+    if (typeof command === 'string') {
+      try {
+        const parsedPayload = JSON.parse(str)
+        if (parsedPayload.command) {
+          command = parsedPayload.command
+        }
+      } catch {}
+    } else if (typeof command === 'object' && str.command) {
+      command = str.command
+    }
+
     imapCommandChannel.publish({
-      type: 'send',
+      type: command,
       host: this.host,
       payload: str,
     });
