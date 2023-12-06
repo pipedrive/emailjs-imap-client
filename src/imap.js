@@ -358,19 +358,16 @@ export default class Imap {
    * @param {String} str Payload
    */
   send (str) {
-    let command = str
+    let command = 'UNKNOWN'
 
     // Parse command type from payload, so we would publish only command type to diagnostics
-    if (typeof command === 'string') {
-      try {
-        const parsedPayload = JSON.parse(str)
-        if (parsedPayload.command) {
-          command = parsedPayload.command
-        }
-      } catch {}
-    } else if (typeof command === 'object' && str.command) {
-      command = str.command
-    }
+    try {
+      const parsedPayload = parserHelper(str)
+      // Based on https://github.com/emailjs/emailjs-imap-handler#parse-imap-commands
+      if (parsedPayload.command) {
+        command = parsedPayload.command
+      }
+    } catch {}
 
     imapCommandChannel.publish({
       type: command,
