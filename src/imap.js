@@ -388,9 +388,9 @@ export default class Imap {
       } catch {}
 
       imapCommandChannel.publish({
-        type: command,
+        type: 'SEND',
         host: this.host,
-        payload: str,
+        command,
       });
     }
   }
