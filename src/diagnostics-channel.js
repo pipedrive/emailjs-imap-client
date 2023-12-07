@@ -19,6 +19,10 @@ export class DiagnosticsChannel {
   unsubscribe(cb) {
     diagnostics_channel.unsubscribe(this.#channelName, cb);
   };
+
+  hasSubscribers() {
+    return this.channel.hasSubscribers;
+  }
 }
 
 export const imapCommandChannel = new DiagnosticsChannel('emailjs-imap-client:command');

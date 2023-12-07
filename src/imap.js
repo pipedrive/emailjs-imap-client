@@ -358,23 +358,6 @@ export default class Imap {
    * @param {String} str Payload
    */
   send (str) {
-    let command = 'UNKNOWN'
-
-    // Parse command type from payload, so we would publish only command type to diagnostics
-    try {
-      const parsedPayload = parserHelper(str)
-      // Based on https://github.com/emailjs/emailjs-imap-handler#parse-imap-commands
-      if (parsedPayload.command) {
-        command = parsedPayload.command
-      }
-    } catch {}
-
-    imapCommandChannel.publish({
-      type: command,
-      host: this.host,
-      payload: str,
-    });
-
     const buffer = toTypedArray(str).buffer
     const timeout = this.timeoutSocketLowerBound + Math.floor(buffer.byteLength * this.timeoutSocketMultiplier)
 
@@ -389,6 +372,26 @@ export default class Imap {
       } else {
         this.socket.send(buffer)
       }
+    }
+
+    // Check for subscribers so we wouldn't parse the payload if not necessary
+    if (imapCommandChannel.hasSubscribers()) {
+      let command = 'UNKNOWN'
+
+      // Parse command type from payload, so we would publish only command type to diagnostics
+      try {
+        const parsedPayload = parserHelper(str)
+        // Based on https://github.com/emailjs/emailjs-imap-handler#parse-imap-commands
+        if (parsedPayload.command) {
+          command = parsedPayload.command
+        }
+      } catch {}
+
+      imapCommandChannel.publish({
+        type: command,
+        host: this.host,
+        payload: str,
+      });
     }
   }
 
