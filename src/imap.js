@@ -5,6 +5,7 @@ import { compiler } from 'emailjs-imap-handler'
 import { parserHelper } from './parser-helper'
 import Compression from './compression'
 import CompressionBlob from '../res/compression.worker.blob'
+import { imapCommandChannel } from './diagnostics-channel';
 
 //
 // constants used for communication with the worker
@@ -128,6 +129,11 @@ export default class Imap {
         ca: this.options.ca
       })
 
+      imapCommandChannel.publish({
+        type: 'CONNECT',
+        host: this.host,
+      });
+
       // allows certificate handling for platform w/o native tls support
       // oncert is non standard so setting it might throw if the socket object is immutable
       try {
@@ -192,6 +198,11 @@ export default class Imap {
 
           this.socket = null
         }
+
+        imapCommandChannel.publish({
+          type: 'CLOSE',
+          host: this.host,
+        });
 
         resolve()
       }
@@ -361,6 +372,26 @@ export default class Imap {
       } else {
         this.socket.send(buffer)
       }
+    }
+
+    // Check for subscribers so we wouldn't parse the payload if not necessary
+    if (imapCommandChannel.hasSubscribers()) {
+      let command = 'UNKNOWN'
+
+      // Parse command type from payload, so we would publish only command type to diagnostics
+      try {
+        const parsedPayload = parserHelper(str)
+        // Based on https://github.com/emailjs/emailjs-imap-handler#parse-imap-commands
+        if (parsedPayload.command) {
+          command = parsedPayload.command
+        }
+      } catch {}
+
+      imapCommandChannel.publish({
+        type: 'SEND',
+        host: this.host,
+        command,
+      });
     }
   }
 
