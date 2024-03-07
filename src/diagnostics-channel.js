@@ -12,7 +12,7 @@ export class DiagnosticsChannel {
     this.channel.publish(data);
   }
 
-  subscribe(cb) { 
+  subscribe(cb) {
     diagnostics_channel.subscribe(this.#channelName, cb);
   };
 
