@@ -9,4 +9,5 @@ export {
   LOG_LEVEL_ALL
 } from './common'
 
+export { imapCommandChannel } from './diagnostics-channel';
 export default ImapClient
