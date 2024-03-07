@@ -1008,4 +1008,8 @@ export default class Client {
   unsubscribeFromDiagnostics(cb) {
     imapCommandChannel.unsubscribe(cb);
   }
+
+  hasSubscribers() {
+    return imapCommandChannel.hasSubscribers();
+  }
 }

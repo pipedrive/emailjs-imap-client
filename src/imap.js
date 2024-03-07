@@ -378,14 +378,9 @@ export default class Imap {
     if (imapCommandChannel.hasSubscribers()) {
       let command = 'UNKNOWN'
 
-      // Parse command type from payload, so we would publish only command type to diagnostics
-      try {
-        const parsedPayload = parserHelper(str)
-        // Based on https://github.com/emailjs/emailjs-imap-handler#parse-imap-commands
-        if (parsedPayload.command) {
-          command = parsedPayload.command
-        }
-      } catch {}
+      if (this._currentCommand?.request?.command) {
+        command = this._currentCommand.request.command;
+      }
 
       imapCommandChannel.publish({
         type: 'SEND',
