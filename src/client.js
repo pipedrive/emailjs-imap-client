@@ -1000,12 +1000,4 @@ export default class Client {
       error: (...msgs) => { if (LOG_LEVEL_ERROR >= this.logLevel) { logger.error(msgs) } }
     }
   }
-
-  subscribeToDiagnostics(cb) {
-    imapCommandChannel.subscribe(cb);
-  }
-
-  unsubscribeFromDiagnostics(cb) {
-    imapCommandChannel.unsubscribe(cb);
-  }
 }
