@@ -8,6 +8,9 @@
     "IMAP"
   ],
   "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "build": "./scripts/build.sh",
     "lint": "$(npm bin)/standard",
