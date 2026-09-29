@@ -161,8 +161,11 @@ export default class Client {
         this.client.onready = () => {
           clearTimeout(connectionTimeout)
           this._changeState(STATE_NOT_AUTHENTICATED)
+          // reject instead of leaving an unhandled rejection when the socket closes
+          // while CAPABILITY is pending (e.g. server greets and immediately drops the connection)
           this.updateCapability()
             .then(() => resolve(this._capability))
+            .catch(reject)
         }
 
         this.client.onerror = (err) => {
