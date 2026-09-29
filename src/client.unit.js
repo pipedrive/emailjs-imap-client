@@ -60,6 +60,18 @@ describe('browserbox unit tests', () => {
         expect(br._capability[1]).to.equal('capa2')
       })
     })
+
+    it('should reject when CAPABILITY fails after greeting', () => {
+      const err = new Error('Socket closed unexpectedly!')
+      br.client.connect.returns(Promise.resolve())
+      br.client.enqueueCommand.callsFake(() => Promise.reject(err))
+      setTimeout(() => br.client.onready(), 0)
+      return br.openConnection().then(() => {
+        throw new Error('should not resolve')
+      }, (e) => {
+        expect(e).to.equal(err)
+      })
+    })
   })
 
   describe('#connect', () => {
