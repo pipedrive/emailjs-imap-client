@@ -578,7 +578,7 @@ export default class Imap {
        */
       //
       if (command[0] === ASCII_PLUS) {
-        if (this._currentCommand.data.length) {
+        if (this._currentCommand.data?.length) {
           // feed the next chunk of data
           var chunk = this._currentCommand.data.shift()
           chunk += (!this._currentCommand.data.length ? EOL : '') // EOL if there's nothing more to send
